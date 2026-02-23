@@ -1,0 +1,6 @@
+@Saas_Micro_Finance.API_HostAddress = http://localhost:5202
+
+GET {{Saas_Micro_Finance.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

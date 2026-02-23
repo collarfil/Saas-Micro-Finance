@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Saas_Micro_Finance.Utility</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Saas-Micro-Finance.DataAccess\Saas-Micro-Finance.DataAccess.csproj" />
+    <ProjectReference Include="..\Saas-Micro-Finance.Models\Saas-Micro-Finance.Models.csproj" />
+  </ItemGroup>
+
+</Project>
