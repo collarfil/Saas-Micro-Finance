@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Saas-Micro-Finance.DataAccess\Saas-Micro-Finance.DataAccess.csproj" />
     <ProjectReference Include="..\Saas-Micro-Finance.Models\Saas-Micro-Finance.Models.csproj" />
   </ItemGroup>

@@ -24,6 +24,9 @@ namespace Saas_Micro_Finance.DataAccess.Data
         public DbSet<Customer_Address> Customer_Addresses { get; set; }
         public DbSet<Customer_KYC> Customer_KYCs { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<Paystack> Paystacks { get; set; }
+        public DbSet<Flutterwave> Flutterwaves { get; set; }
 
     }
     

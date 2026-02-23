@@ -1,13 +1,14 @@
+using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Saas_Micro_Finance.DataAccess.Data;
 using Saas_Micro_Finance.DataAccess.Repository;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
-using Microsoft.AspNetCore.Identity;
 using Saas_Micro_Finance.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Saas_Micro_Finance.Utility.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,8 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
