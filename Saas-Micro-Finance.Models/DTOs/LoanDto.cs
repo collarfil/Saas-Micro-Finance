@@ -9,7 +9,7 @@ namespace Saas_Micro_Finance.Models.DTOs
     public class LoanDto
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
+        
         public int CustomerId { get; set; }
         public int LoanProductId { get; set; }
         public decimal Principal { get; set; }

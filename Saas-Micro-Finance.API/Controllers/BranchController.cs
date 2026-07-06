@@ -37,8 +37,8 @@ namespace Saas_Micro_Finance.API.Controllers
             if (dto.Id == 0)
             {
                 var branch=new Branch
-                                    {
-                    TenantId = dto.TenantId,
+                 {
+                    
                     Address = dto.Address
                    
                 };

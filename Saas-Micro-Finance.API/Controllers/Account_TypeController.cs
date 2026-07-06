@@ -39,7 +39,7 @@ namespace Saas_Micro_Finance.API.Controllers
             {
                 var entity = new Account_Type
                 {
-                    TenantId = dto.TenantId,
+                    
                     Name = dto.Name,
                     Minimum_Balance = dto.Minimum_Balance,
                     Interest_Rate = dto.Interest_Rate,

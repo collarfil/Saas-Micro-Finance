@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Saas_Micro_Finance.DataAccess.Data;
 using Saas_Micro_Finance.Models;
 using Saas_Micro_Finance.Models.DTOs;
+using Saas_Micro_Finance.Utility.Services.Interface;
 
 namespace Saas_Micro_Finance.Utility.Services
 {
@@ -28,7 +29,7 @@ namespace Saas_Micro_Finance.Utility.Services
         {
             var subscription = new Subscription
             {
-                TenantId = GetTenantId(),
+                
                 PlanName = dto.PlanName,
                 Amount = dto.Amount,
                 StartDate = dto.StartDate,

@@ -9,10 +9,9 @@ namespace Saas_Micro_Finance.Models.DTOs
     public class Customer_KYCDto
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
+        
         
         public int CustomerId { get; set; }
-        
         public string NIN { get; set; }
         public string BVN { get; set; }
         public string ID_Type { get; set; }

@@ -41,7 +41,7 @@ namespace Saas_Micro_Finance.API.Controllers
             {
                 account = new Account
                 {
-                    TenantId = dto.TenantId,
+                    
                     CustomerId = dto.CustomerId,
                     Account_TypeId = dto.Account_TypeId,
                     Account_Number = dto.Account_Number,
@@ -49,7 +49,7 @@ namespace Saas_Micro_Finance.API.Controllers
                     Status = AccountStatus.Active,
                     Opened_At = dto.Opened_At
                 };
-                await _unitOfWork.Accounts.AddAsync(account); // FIX: Add Account, not AccountDto
+                await _unitOfWork.Accounts.AddAsync(account); 
             }
             else
             {
@@ -58,7 +58,7 @@ namespace Saas_Micro_Finance.API.Controllers
                 {
                     return NotFound();
                 }
-                account.TenantId = dto.TenantId;
+                
                 account.CustomerId = dto.CustomerId;
                 account.Account_TypeId = dto.Account_TypeId;
                 account.Account_Number = dto.Account_Number;

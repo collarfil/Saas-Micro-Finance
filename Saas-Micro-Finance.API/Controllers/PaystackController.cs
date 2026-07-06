@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Saas_Micro_Finance.Models.DTOs;
-using Saas_Micro_Finance.Utility.Services;
+using Saas_Micro_Finance.Utility.Services.Interface;
 
 namespace Saas_Micro_Finance.API.Controllers
 {

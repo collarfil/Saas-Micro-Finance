@@ -12,10 +12,10 @@ namespace Saas_Micro_Finance.DataAccess.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly SaasBankDbContext _db;
+        private readonly DbContext _db;
         internal DbSet<T> dbSet;
 
-        public Repository(SaasBankDbContext db)
+        public Repository(DbContext db)
         {
             _db = db;
             dbSet = _db.Set<T>();
@@ -70,6 +70,16 @@ namespace Saas_Micro_Finance.DataAccess.Repository
         public async Task AddAsync(T entity)
         {
             await dbSet.AddAsync(entity);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await dbSet.AddRangeAsync(entities);
+        }
+
+        public IQueryable<T> Query()
+        {
+            return dbSet;
         }
 
         public void Update(T entity)

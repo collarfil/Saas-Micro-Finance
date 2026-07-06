@@ -9,10 +9,6 @@ namespace Saas_Micro_Finance.Models
     public class LedgerEntry
     {
         public int Id { get; set; }
-
-        public int TenantId { get; set; }
-        public Tenant Tenant { get; set; }
-
         public int TransactionId { get; set; }
         public Transaction Transaction { get; set; }
 

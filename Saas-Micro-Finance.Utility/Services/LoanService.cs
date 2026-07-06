@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
+using Saas_Micro_Finance.Utility.Services.Interface;
 
 namespace Saas_Micro_Finance.Utility.Services
 {
@@ -17,10 +18,10 @@ namespace Saas_Micro_Finance.Utility.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> ApplyLoanAsync(int tenantId, int customerId, int loanProductId, decimal principal)
+        public async Task<string> ApplyLoanAsync(int customerId, int loanProductId, decimal principal)
         {
             var product = await _unitOfWork.LoanProducts
-                .GetFirstOrDefaultAsync(x => x.Id == loanProductId && x.TenantId == tenantId);
+                .GetFirstOrDefaultAsync(x => x.Id == loanProductId);
 
             if (product == null)
                 throw new Exception("Invalid loan product.");
@@ -29,11 +30,12 @@ namespace Saas_Micro_Finance.Utility.Services
 
             var loan = new Loan
             {
-                TenantId = tenantId,
+                CustomerId = customerId,
                 LoanProductId = loanProductId,
                 Principal = principal,
                 Interest = interest,
-                Status = LoanStatus.Pending
+                Status = LoanStatus.Pending,
+                DisbursedAt = DateTime.UtcNow
             };
 
             await _unitOfWork.Loans.AddAsync(loan);
@@ -99,7 +101,7 @@ namespace Saas_Micro_Finance.Utility.Services
 
                 var repayment = new LoanRepayment
                 {
-                    TenantId = loan.TenantId,
+                    
                     LoanId = loan.Id,
                     Amount = amount,
                     PaidAt = DateTime.UtcNow,

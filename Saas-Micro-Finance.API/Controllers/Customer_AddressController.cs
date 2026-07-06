@@ -42,7 +42,7 @@ namespace Saas_Micro_Finance.API.Controllers
             {
                 var customer_Address = new Customer_Address
                 {
-                    TenantId = dto.TenantId,
+                    
                     CustomerId = dto.CustomerId,
                     Address = dto.Address,
                     City = dto.City,
@@ -59,7 +59,7 @@ namespace Saas_Micro_Finance.API.Controllers
                     return NotFound();
                 }
 
-                customer_Address.TenantId = dto.TenantId;
+                
                 customer_Address.CustomerId = dto.CustomerId;
                 customer_Address.Address = dto.Address;
                 customer_Address.City = dto.City;

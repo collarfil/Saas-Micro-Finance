@@ -1,17 +1,21 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using Saas_Micro_Finance.DataAccess.Data;
+using Saas_Micro_Finance.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Saas_Micro_Finance.Models;
 
 namespace Saas_Micro_Finance.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork : IDisposable
-    {
+    {   
+       
+
         IRepository<Account> Accounts { get; }
         IRepository<Account_Type> AccountTypes { get; }
-        IRepository<Tenant> Tenants { get; }
+        
         IRepository<Customer> Customers { get; }
         IRepository<Customer_Address> CustomerAddresses { get; }
         IRepository<Customer_KYC> CustomerKYCs { get; }
@@ -23,6 +27,7 @@ namespace Saas_Micro_Finance.DataAccess.Repository.IRepository
         IRepository<LoanRepayment> LoanRepayments { get; }
         IRepository<Wallet> Wallets { get; }
         IRepository<Transaction> Transactions { get; }
+        IRepository<Department> Departments { get; }
        
         IRepository<LedgerEntry> LedgerEntries { get; }
         IRepository<Branch> Branches { get; }
@@ -30,9 +35,13 @@ namespace Saas_Micro_Finance.DataAccess.Repository.IRepository
 
         Task<int> SaveAsync();
 
-        Task BeginTransactionAsync();
+        Task<IDbContextTransaction> BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
         Task CommitAsync();
         Task RollbackAsync();
+
+       
     }
 
 }

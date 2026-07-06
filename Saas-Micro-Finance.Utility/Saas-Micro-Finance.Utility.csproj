@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Finbuckle.MultiTenant" Version="6.13.1" />
+
+	  <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" Version="6.13.1" />
+
+	  <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="6.13.1" />
     <ProjectReference Include="..\Saas-Micro-Finance.DataAccess\Saas-Micro-Finance.DataAccess.csproj" />
     <ProjectReference Include="..\Saas-Micro-Finance.Models\Saas-Micro-Finance.Models.csproj" />
   </ItemGroup>

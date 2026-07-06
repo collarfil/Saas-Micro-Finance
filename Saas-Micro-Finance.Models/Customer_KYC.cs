@@ -9,8 +9,6 @@ namespace Saas_Micro_Finance.Models
     public class Customer_KYC
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
-        public Tenant Tenant { get; set; }
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
         public string NIN { get; set; }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Saas_Micro_Finance.Models.DTOs;
 
-namespace Saas_Micro_Finance.Utility.Services
+namespace Saas_Micro_Finance.Utility.Services.Interface
 {
     public interface ISubscriptionService
     {

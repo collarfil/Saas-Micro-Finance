@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Saas_Micro_Finance.Models.DTOs
 {
-    public class Ledger_EntryDto
+    public class LedgerEntryDto
     {
             public int Id { get; set; }
 
-            public int TenantId { get; set; }
-            
+                     
 
             public int TransactionId { get; set; }
             

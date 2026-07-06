@@ -9,7 +9,7 @@ namespace Saas_Micro_Finance.Models.DTOs
     public class Customer_AddressDto
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
+       
         
         public int CustomerId { get; set; }
         

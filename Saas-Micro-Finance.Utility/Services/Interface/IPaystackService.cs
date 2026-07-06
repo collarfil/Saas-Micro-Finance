@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Saas_Micro_Finance.Models.DTOs;
 
-namespace Saas_Micro_Finance.Utility.Services
+namespace Saas_Micro_Finance.Utility.Services.Interface
 {
-    public interface IFlutterwaveService
+    public interface IPaystackService
     {
         Task<PaymentDto> InitializePaymentAsync(CreatePaymentDto dto);
         Task<PaymentDto> ConfirmPaymentAsync(string transactionReference, bool isSuccess);

@@ -20,7 +20,8 @@ namespace Saas_Micro_Finance.DataAccess.Repository.IRepository
             string? includeProperties = null);
 
         Task AddAsync(T entity);
-
+        Task AddRangeAsync(IEnumerable<T> entities);
+        IQueryable<T> Query();
         void Update(T entity);
 
         void Remove(T entity);

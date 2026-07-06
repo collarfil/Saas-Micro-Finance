@@ -9,8 +9,7 @@ namespace Saas_Micro_Finance.Models.DTOs
     public class WhatsAppDto
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
-        
+                
         public int CustomerId { get; set; }
         
         public string Phone { get; set; }

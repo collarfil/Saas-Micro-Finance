@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Saas_Micro_Finance.Models;
-using Saas_Micro_Finance.Utility.Services;
+using Saas_Micro_Finance.Models.DTOs;
+using Saas_Micro_Finance.Utility.Services.Interface;
 
 namespace Saas_Micro_Finance.API.Controllers
 {
@@ -18,15 +19,17 @@ namespace Saas_Micro_Finance.API.Controllers
         }
 
         [HttpPost("apply")]
-        public async Task<IActionResult> Apply(Loan dto)
+        public async Task<IActionResult> Apply(ApplyLoanDto dto)
         {
-            var result = await _loanService.ApplyLoanAsync(
-                dto.TenantId,
+            await _loanService.ApplyLoanAsync(
                 dto.CustomerId,
                 dto.LoanProductId,
                 dto.Principal);
 
-            return Ok(result);
+            return Ok(new
+            {
+                message = "Loan application submitted."
+            });
         }
 
         [HttpPost("approve/{loanId}")]

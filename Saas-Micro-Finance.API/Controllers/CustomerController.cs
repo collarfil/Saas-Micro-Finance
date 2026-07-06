@@ -33,6 +33,7 @@ namespace Saas_Micro_Finance.API.Controllers
             }
             return Ok(customer);
         }
+
         [HttpPost("upsert")]
         public async Task<IActionResult> Upsert(CustomerDto dto)
         {
@@ -40,12 +41,13 @@ namespace Saas_Micro_Finance.API.Controllers
             {
                 var customer=new Customer
                 {
-                    TenantId = dto.TenantId,
+                    
                     FirstName = dto.FirstName,
                     LastName = dto.LastName,
                     Gender =dto.Gender,
                     DOB = dto.DOB,
                     Email = dto.Email,
+                    //AdminPassword=dto.AdminPassword,
                     Phone = dto.Phone,
                     Created_At = dto.Created_At,
                     Status=CustomerStatus.Active 
@@ -58,12 +60,13 @@ namespace Saas_Micro_Finance.API.Controllers
                 if (customer == null)
                 {
                     return NotFound();
-                    customer.TenantId = dto.TenantId;
+                    
                     customer.FirstName = dto.FirstName;
                     customer.LastName = dto.LastName;
                     customer.Gender = dto.Gender;
                     customer.DOB= dto.DOB;
                     customer.Email = dto.Email;
+                    //customer.AdminPassword= dto.AdminPassword;
                     customer.Phone = dto.Phone;
                     customer.Created_At = dto.Created_At;
                     customer.Status = dto.Status; // FIX: Update status from DTO
@@ -74,6 +77,7 @@ namespace Saas_Micro_Finance.API.Controllers
             await _unitOfWork.SaveAsync();
             return Ok();
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

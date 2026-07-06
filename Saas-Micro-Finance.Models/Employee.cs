@@ -9,8 +9,6 @@ namespace Saas_Micro_Finance.Models
     public class Employee
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
-        public Tenant Tenant { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Gender { get; set; }

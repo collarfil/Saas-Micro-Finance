@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
+using Saas_Micro_Finance.Utility.Services.Interface;
 
 namespace Saas_Micro_Finance.Utility.Services
 {
@@ -17,7 +18,7 @@ namespace Saas_Micro_Finance.Utility.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> DepositAsync(int tenantId, int accountId, decimal amount, string reference, string narration)
+        public async Task<string> DepositAsync(int accountId, decimal amount, string reference, string narration, string channel)
         {
             if (amount <= 0)
                 throw new Exception("Invalid deposit amount.");
@@ -27,7 +28,7 @@ namespace Saas_Micro_Finance.Utility.Services
             try
             {
                 var account = await _unitOfWork.Accounts
-                    .GetFirstOrDefaultAsync(x => x.Id == accountId && x.TenantId == tenantId);
+                    .GetFirstOrDefaultAsync(x => x.Id == accountId);
 
                 if (account == null)
                     throw new Exception("Account not found.");
@@ -35,12 +36,13 @@ namespace Saas_Micro_Finance.Utility.Services
                 // Create transaction record
                 var transaction = new Transaction
                 {
-                    TenantId = tenantId,
+                    
                     AccountId = accountId,
                     Type = TransactionType.Credit,
                     Amount = amount,
                     Reference = reference,
                     Narration = narration,
+                    Channel = channel,
                     Created_At = DateTime.UtcNow
                 };
 
@@ -50,7 +52,7 @@ namespace Saas_Micro_Finance.Utility.Services
                 // Ledger Entries (Debit & Credit)
                 var debitEntry = new LedgerEntry
                 {
-                    TenantId = tenantId,
+                    
                     TransactionId = transaction.Id,
                     AccountId = accountId,
                     Amount = amount,
@@ -75,7 +77,7 @@ namespace Saas_Micro_Finance.Utility.Services
             }
         }
 
-        public async Task<string> WithdrawAsync(int tenantId, int accountId, decimal amount, string reference, string narration)
+        public async Task<string> WithdrawAsync(int TenantId, int accountId, decimal amount, string reference, string narration, string channel)
         {
             if (amount <= 0)
                 throw new Exception("Invalid withdrawal amount.");
@@ -85,7 +87,7 @@ namespace Saas_Micro_Finance.Utility.Services
             try
             {
                 var account = await _unitOfWork.Accounts
-                    .GetFirstOrDefaultAsync(x => x.Id == accountId && x.TenantId == tenantId);
+                    .GetFirstOrDefaultAsync(x => x.Id == accountId);
 
                 if (account == null)
                     throw new Exception("Account not found.");
@@ -95,12 +97,13 @@ namespace Saas_Micro_Finance.Utility.Services
 
                 var transaction = new Transaction
                 {
-                    TenantId = tenantId,
+                    
                     AccountId = accountId,
                     Type = TransactionType.Debit,
                     Amount = amount,
                     Reference = reference,
                     Narration = narration,
+                    Channel = channel,
                     Created_At = DateTime.UtcNow
                 };
 
@@ -109,7 +112,7 @@ namespace Saas_Micro_Finance.Utility.Services
 
                 var ledgerEntry = new LedgerEntry
                 {
-                    TenantId = tenantId,
+                    
                     TransactionId = transaction.Id,
                     AccountId = accountId,
                     Amount = amount,
@@ -133,7 +136,7 @@ namespace Saas_Micro_Finance.Utility.Services
             }
         }
 
-        public async Task<string> TransferAsync(int tenantId, int fromAccountId, int toAccountId, decimal amount, string reference, string narration)
+        public async Task<string> TransferAsync(int TenantId, int fromAccountId, int toAccountId, decimal amount, string reference, string narration, string channel)
         {
             if (amount <= 0)
                 throw new Exception("Invalid transfer amount.");
@@ -143,10 +146,10 @@ namespace Saas_Micro_Finance.Utility.Services
             try
             {
                 var fromAccount = await _unitOfWork.Accounts
-                    .GetFirstOrDefaultAsync(x => x.Id == fromAccountId && x.TenantId == tenantId);
+                    .GetFirstOrDefaultAsync(x => x.Id == fromAccountId);
 
                 var toAccount = await _unitOfWork.Accounts
-                    .GetFirstOrDefaultAsync(x => x.Id == toAccountId && x.TenantId == tenantId);
+                    .GetFirstOrDefaultAsync(x => x.Id == toAccountId);
 
                 if (fromAccount == null || toAccount == null)
                     throw new Exception("Invalid accounts.");
@@ -156,12 +159,13 @@ namespace Saas_Micro_Finance.Utility.Services
 
                 var transaction = new Transaction
                 {
-                    TenantId = tenantId,
+                    
                     AccountId = fromAccountId,
                     Type = TransactionType.Debit,
                     Amount = amount,
                     Reference = reference,
                     Narration = narration,
+                    Channel = channel,
                     Created_At = DateTime.UtcNow
                 };
 
@@ -170,7 +174,7 @@ namespace Saas_Micro_Finance.Utility.Services
 
                 await _unitOfWork.LedgerEntries.AddAsync(new LedgerEntry
                 {
-                    TenantId = tenantId,
+                    
                     TransactionId = transaction.Id,
                     AccountId = fromAccountId,
                     Amount = amount,
@@ -179,7 +183,7 @@ namespace Saas_Micro_Finance.Utility.Services
 
                 await _unitOfWork.LedgerEntries.AddAsync(new LedgerEntry
                 {
-                    TenantId = tenantId,
+                    
                     TransactionId = transaction.Id,
                     AccountId = toAccountId,
                     Amount = amount,
