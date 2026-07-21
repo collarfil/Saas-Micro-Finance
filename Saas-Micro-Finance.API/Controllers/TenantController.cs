@@ -7,6 +7,7 @@ using Saas_Micro_Finance.DataAccess.Data;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
 using Saas_Micro_Finance.Models.DTOs;
+using Saas_Micro_Finance.Utility.Services;
 using System.Data.SqlClient;
 
 namespace Saas_Micro_Finance.API.Controllers
@@ -82,7 +83,15 @@ namespace Saas_Micro_Finance.API.Controllers
 
             return Ok(new { message = $"Tenant {dto.Name} created and seeded successfully." });
         }
+       
+        [HttpPost("migrate-tenants")]
+        public async Task<IActionResult> MigrateTenants(
+        [FromServices] TenantMigrationService migrationService)
+        {
+            await migrationService.MigrateAllTenantsAsync();
 
+            return Ok("All tenant databases migrated.");
+        }
         private async Task SeedTenantAdmin(SaasBankDbContext context, string email, string password)
         {
             // 1. Create specialized stores for this specific tenant's DB connection

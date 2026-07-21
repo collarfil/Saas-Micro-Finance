@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
@@ -11,10 +12,17 @@ namespace Saas_Micro_Finance.API.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public EmployeeController(IUnitOfWork unitOfWork)
+        public EmployeeController(
+            IUnitOfWork unitOfWork,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet]
@@ -40,16 +48,43 @@ namespace Saas_Micro_Finance.API.Controllers
         {
             if (dto.Id == 0)
             {
+                var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+
+                if (existingUser != null)
+                    return BadRequest("Email already exists.");
+
+                var user = new ApplicationUser
+                {
+                    UserName = dto.Email,
+                    Email = dto.Email,
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, dto.Password);
+
+                if (!result.Succeeded)
+                    return BadRequest(result.Errors);
+
+                if (!await _roleManager.RoleExistsAsync(dto.Role))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(dto.Role));
+                }
+
+                await _userManager.AddToRoleAsync(user, dto.Role);
+
                 var employee = new Employee
                 {
+                    ApplicationUserId = user.Id,
+
                     FirstName = dto.FirstName,
-                    LastName=dto.LastName,
+                    LastName = dto.LastName,
                     Gender = dto.Gender,
                     DOB = dto.DOB,
                     StaffNumber = dto.StaffNumber,
                     DepartmentId = dto.DepartmentId,
-                    Position = dto.Position,
-                   
+                    Position = dto.Position
                 };
 
                 await _unitOfWork.Employees.AddAsync(employee);

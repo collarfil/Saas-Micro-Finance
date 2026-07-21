@@ -9,6 +9,9 @@ namespace Saas_Micro_Finance.Models
     public class Employee
     {
         public int Id { get; set; }
+        public string ApplicationUserId { get; set; } = string.Empty;
+
+        public ApplicationUser ApplicationUser { get; set; } = null!;
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Gender { get; set; }

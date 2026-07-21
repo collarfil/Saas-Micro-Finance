@@ -104,7 +104,7 @@ builder.Services.AddScoped<IFlutterwaveService, FlutterwaveService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<TenantResolverService>();
-
+builder.Services.AddScoped<TenantMigrationService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllers()

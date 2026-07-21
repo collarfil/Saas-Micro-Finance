@@ -39,8 +39,9 @@ namespace Saas_Micro_Finance.API.Controllers
                 var branch=new Branch
                  {
                     
-                    Address = dto.Address
-                   
+                    Address = dto.Address,
+                    Phone= dto.Phone
+
                 };
                 await _unitOfWork.Branches.AddAsync(branch);
             }
@@ -51,6 +52,8 @@ namespace Saas_Micro_Finance.API.Controllers
                 {
                     return NotFound();
                 }
+                branch.Address = dto.Address;
+                branch.Phone = dto.Phone;
                 _unitOfWork.Branches.Update(branch);
             }
             await _unitOfWork.SaveAsync();
