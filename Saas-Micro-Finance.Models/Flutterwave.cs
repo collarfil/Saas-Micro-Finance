@@ -14,5 +14,9 @@ namespace Saas_Micro_Finance.Models
         public string TransactionReference { get; set; }
         public bool IsSuccessful { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public Subscription Subscription { get; set; }
+        public string PaymentStatus { get; set; }
+        public string Currency { get; set; }
+        public DateTime? PaidAt { get; set; }
     }
 }

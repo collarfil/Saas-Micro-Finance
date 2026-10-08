@@ -60,6 +60,14 @@ namespace Saas_Micro_Finance.API.Controllers
                     EmailConfirmed = true
                 };
 
+                if (string.IsNullOrWhiteSpace(dto.Password))
+                {
+                    return BadRequest(new
+                    {
+                        message = "Password is required when creating a new customer."
+                    });
+                }
+
                 var result = await _userManager.CreateAsync(user, dto.Password);
 
                 if (!result.Succeeded)
@@ -104,6 +112,86 @@ namespace Saas_Micro_Finance.API.Controllers
             }
             await _unitOfWork.SaveAsync();
             return Ok();
+        }
+      
+        [HttpPost("{id}/create-login")]
+        public async Task<IActionResult> CreateLogin(
+        int id,[FromBody] CreateCustomerLoginDto dto)
+        {
+            var customer = await _unitOfWork.Customers
+                .GetFirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer == null)
+                return NotFound(new
+                {
+                    message = "Customer not found."
+                });
+
+            if (!string.IsNullOrEmpty(customer.ApplicationUserId))
+            {
+                return BadRequest(new
+                {
+                    message = "This customer already has a login account."
+                });
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(customer.Email);
+
+            if (existingUser != null)
+            {
+                customer.ApplicationUserId = existingUser.Id;
+
+                _unitOfWork.Customers.Update(customer);
+                await _unitOfWork.SaveAsync();
+
+                return Ok(new
+                {
+                    message = "Existing user account linked to customer."
+                });
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = customer.Email,
+                Email = customer.Email,
+                PhoneNumber = customer.Phone,
+                FirstName = customer.FirstName,
+                LastName = customer.LastName,
+                EmailConfirmed = true,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    message = "Unable to create login account.",
+                    errors = result.Errors.Select(e => e.Description)
+                });
+            }
+
+            if (!await _roleManager.RoleExistsAsync("Customer"))
+            {
+                await _roleManager.CreateAsync(
+                    new IdentityRole("Customer"));
+            }
+
+            await _userManager.AddToRoleAsync(user, "Customer");
+
+            customer.ApplicationUserId = user.Id;
+
+            _unitOfWork.Customers.Update(customer);
+
+            await _unitOfWork.SaveAsync();
+
+            return Ok(new
+            {
+                message = "Customer login created successfully.",
+                userId = user.Id
+            });
         }
 
         [HttpDelete("{id}")]

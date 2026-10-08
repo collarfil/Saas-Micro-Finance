@@ -12,6 +12,12 @@ namespace Saas_Micro_Finance.Models
         public string? ConnectionString { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public string? DatabaseName { get; set; }
+        public string? DatabaseName { get; set; }    
+        public bool IsActivated { get; set; }     
+        public DateTime? ActivatedAt { get; set; }
+        public DateTime? SubscriptionExpiresAt { get; set; }
+        public int? CurrentSubscriptionId { get; set; }
+
+       
     }
 }

@@ -17,6 +17,8 @@ using Saas_Micro_Finance.Utility.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // 1. Connection Strings
 var masterConnection = builder.Configuration.GetConnectionString("MasterConnection");
 
@@ -106,9 +108,14 @@ builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<TenantResolverService>();
 builder.Services.AddScoped<TenantMigrationService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<HostMigrationService>();
+
+builder.Services.AddScoped<ITenantMigrationService,
+    TenantMigrationService>();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(TenantController).Assembly);
+
 
 
 // 8. CORS
@@ -121,6 +128,21 @@ builder.Services.AddCors(options => {
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var host =
+        scope.ServiceProvider
+            .GetRequiredService<HostMigrationService>();
+
+    await host.MigrateAsync();
+
+    var tenant =
+        scope.ServiceProvider
+            .GetRequiredService<ITenantMigrationService>();
+
+    await tenant.MigrateAsync();
+}
 
 // Middleware
 if (app.Environment.IsDevelopment())

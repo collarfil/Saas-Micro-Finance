@@ -59,6 +59,7 @@ namespace Saas_Micro_Finance.API.Controllers
             await _unitOfWork.SaveAsync();
             return Ok();
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

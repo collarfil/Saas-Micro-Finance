@@ -88,7 +88,7 @@ namespace Saas_Micro_Finance.API.Controllers
         public async Task<IActionResult> MigrateTenants(
         [FromServices] TenantMigrationService migrationService)
         {
-            await migrationService.MigrateAllTenantsAsync();
+            await migrationService.MigrateAsync();
 
             return Ok("All tenant databases migrated.");
         }

@@ -9,9 +9,9 @@ namespace Saas_Micro_Finance.Models
     public class Customer
     {
         public int Id { get; set; }
-        public string ApplicationUserId { get; set; } = string.Empty;
+        public string? ApplicationUserId { get; set; }
 
-        public ApplicationUser ApplicationUser { get; set; } = null!;
+        public ApplicationUser? ApplicationUser { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Gender { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Saas_Micro_Finance.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using Saas_Micro_Finance.DataAccess.Data;
 namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
 {
     [DbContext(typeof(SaasBankDbContext))]
-    partial class SaasBankDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260730101927_updatesubscriptionandpayments")]
+    partial class updatesubscriptionandpayments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,6 +411,7 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApplicationUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Created_At")
@@ -551,9 +555,6 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -567,8 +568,6 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                         .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.ToTable("Departments");
 
@@ -584,10 +583,8 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApplicationUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("DOB")
                         .HasColumnType("datetime2");
@@ -615,10 +612,6 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -627,8 +620,6 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("DepartmentId");
 
@@ -1159,7 +1150,9 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                 {
                     b.HasOne("Saas_Micro_Finance.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ApplicationUser");
                 });
@@ -1186,38 +1179,21 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Saas_Micro_Finance.Models.Department", b =>
-                {
-                    b.HasOne("Saas_Micro_Finance.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-                });
-
             modelBuilder.Entity("Saas_Micro_Finance.Models.Employee", b =>
                 {
                     b.HasOne("Saas_Micro_Finance.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Saas_Micro_Finance.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Saas_Micro_Finance.Models.Department", "Department")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("Branch");
 
                     b.Navigation("Department");
                 });
@@ -1313,11 +1289,6 @@ namespace Saas_Micro_Finance.DataAccess.Migrations.TenantMigrations
                     b.Navigation("KYC");
 
                     b.Navigation("Loans");
-                });
-
-            modelBuilder.Entity("Saas_Micro_Finance.Models.Department", b =>
-                {
-                    b.Navigation("Employees");
                 });
 #pragma warning restore 612, 618
         }
