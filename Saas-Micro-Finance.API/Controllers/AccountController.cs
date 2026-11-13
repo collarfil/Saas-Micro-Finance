@@ -85,5 +85,12 @@ namespace Saas_Micro_Finance.API.Controllers
             await _unitOfWork.SaveAsync();
             return Ok();
         }
+
+        [HttpGet("customer/{customerId}")]
+        public async Task<IActionResult> GetCustomerAccounts(int customerId)
+        {
+            var accounts = await _unitOfWork.Accounts.GetAllAsync(a => a.CustomerId == customerId);
+            return Ok(accounts);
+        }
     }
 }

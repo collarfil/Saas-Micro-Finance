@@ -29,12 +29,11 @@ namespace Saas_Micro_Finance.Utility.Services
         {
             var subscription = new Subscription
             {
-                
                 PlanName = dto.PlanName,
                 Amount = dto.Amount,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                IsActive = true
+                IsActive = false // ✅ DO NOT AUTO-ACTIVATE
             };
 
             _context.Subscriptions.Add(subscription);
@@ -50,7 +49,6 @@ namespace Saas_Micro_Finance.Utility.Services
                 IsActive = subscription.IsActive
             };
         }
-
         public async Task<List<SubscriptionDto>> GetSubscriptionsAsync()
         {
             return await _context.Subscriptions

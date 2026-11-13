@@ -1,23 +1,34 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Saas_Micro_Finance.Models
 {
     public class GLAccount
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Code { get; set; } // e.g. 1001, 2001
+
+        [Required]
+        [MaxLength(150)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(20)]
+        public string Code { get; set; } = string.Empty;
+
         public GLAccountType Type { get; set; }
 
-        public decimal Balance { get; set; }
+        // Self-referencing hierarchy
+        public int? ParentId { get; set; }
 
-        public int? ParentId { get; set; } // for COA hierarchy
-        public GLAccount Parent { get; set; }
+        public GLAccount? Parent { get; set; }
+
+        public ICollection<GLAccount> Children { get; set; }
+            = new List<GLAccount>();
+
+        public bool IsActive { get; set; } = true;
     }
+
     public enum GLAccountType
     {
         Asset = 1,

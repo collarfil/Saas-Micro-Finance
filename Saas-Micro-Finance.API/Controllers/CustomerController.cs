@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
 using Saas_Micro_Finance.Models.DTOs;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using CustomerStatus = Saas_Micro_Finance.Models.CustomerStatus;
 
@@ -27,9 +29,41 @@ namespace Saas_Micro_Finance.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var customers = await _unitOfWork.Customers.GetAllAsync();
-            return Ok(customers);
+            var customerDtos = customers.Select(c => new CustomerDto
+            {
+                Id = c.Id,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Email = c.Email,
+                Phone = c.Phone,
+                Gender = c.Gender,
+                DOB = c.DOB,
+                Status = c.Status,
+                Created_At = c.Created_At
+            }).ToList();
+            return Ok(customerDtos);
         }
-        [HttpGet("{id}")]
+
+        [HttpGet("me")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email)
+                     ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized(new { message = "No email claim in token." });
+
+            var customer = await _unitOfWork.Customers
+                .GetFirstOrDefaultAsync(c => c.Email == email);
+
+            if (customer == null)
+                return NotFound(new { message = "Customer profile not found in this tenant." });
+
+            return Ok(customer);
+        }
+
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var customer = await _unitOfWork.Customers.GetFirstOrDefaultAsync(c => c.Id == id);
@@ -37,7 +71,19 @@ namespace Saas_Micro_Finance.API.Controllers
             {
                 return NotFound();
             }
-            return Ok(customer);
+            var customerDto = new CustomerDto
+            {
+                Id = customer.Id,
+                FirstName = customer.FirstName,
+                LastName = customer.LastName,
+                Email = customer.Email,
+                Phone = customer.Phone,
+                Gender = customer.Gender,
+                DOB = customer.DOB,
+                Status = customer.Status,
+                Created_At = customer.Created_At
+            };
+            return Ok(customerDto);
         }
 
         [HttpPost("upsert")]

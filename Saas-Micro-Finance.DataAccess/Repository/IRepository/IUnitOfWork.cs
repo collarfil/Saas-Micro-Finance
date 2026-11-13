@@ -32,6 +32,9 @@ namespace Saas_Micro_Finance.DataAccess.Repository.IRepository
         IRepository<LedgerEntry> LedgerEntries { get; }
         IRepository<Branch> Branches { get; }
         IRepository<AuditLog> AuditLogs { get; }
+        IRepository<GLAccount> GLAccounts { get; }
+        IRepository<JournalEntry> JournalEntries { get; }
+        IRepository<JournalEntryLine> JournalEntryLines { get; }
 
         Task<int> SaveAsync();
 

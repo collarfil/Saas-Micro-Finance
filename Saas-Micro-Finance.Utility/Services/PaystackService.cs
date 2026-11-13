@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Saas_Micro_Finance.DataAccess.Data;
 using Saas_Micro_Finance.Models;
@@ -15,26 +11,22 @@ namespace Saas_Micro_Finance.Utility.Services
     public class PaystackService : IPaystackService
     {
         private readonly SaasBankDbContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PaystackService(SaasBankDbContext context, IHttpContextAccessor httpContextAccessor)
+        public PaystackService(SaasBankDbContext context)
         {
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
         }
-
-        private int GetTenantId() => int.Parse(_httpContextAccessor.HttpContext.Items["TenantId"].ToString());
 
         public async Task<PaymentDto> InitializePaymentAsync(CreatePaymentDto dto)
         {
-            // Here you would call Paystack API to generate reference
-            var reference = Guid.NewGuid().ToString("N"); // Simulated
+            var reference = Guid.NewGuid().ToString("N"); // Simulated reference
 
             var payment = new Paystack
             {
                 SubscriptionId = dto.SubscriptionId,
-                
                 Amount = dto.Amount,
+                Currency = "NGN",               // Set default currency
+                PaymentStatus = "Pending",      // <-- FIX: Added PaymentStatus to prevent null constraint violation
                 TransactionReference = reference,
                 IsSuccessful = false
             };
@@ -61,6 +53,18 @@ namespace Saas_Micro_Finance.Utility.Services
             if (payment == null) return null;
 
             payment.IsSuccessful = isSuccess;
+            payment.PaymentStatus = isSuccess ? "Successful" : "Failed";
+
+            // ✅ UNLOCK THE SUBSCRIPTION ON SUCCESS
+            if (isSuccess && payment.SubscriptionId > 0)
+            {
+                var sub = await _context.Subscriptions.FindAsync(payment.SubscriptionId);
+                if (sub != null)
+                {
+                    sub.IsActive = true;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return new PaymentDto

@@ -12,7 +12,7 @@ namespace Saas_Micro_Finance.Models
         public string? ApplicationUserId { get; set; } 
 
         public ApplicationUser? ApplicationUser { get; set; }
-        public int BranchId { get; set; }
+        public int? BranchId { get; set; }
         public Branch Branch { get; set; } = null!;
         public string FirstName { get; set; }=string.Empty;
         public string LastName { get; set; }= string.Empty;

@@ -40,7 +40,9 @@ namespace Saas_Micro_Finance.DataAccess.Repository
         public IRepository<Wallet> Wallets { get; private set; }
         public IRepository<WhatsApp> WhatsApps { get; private set; }
 
-
+        public IRepository<GLAccount> GLAccounts { get; private set; }
+        public IRepository<JournalEntry> JournalEntries { get; private set; }
+        public IRepository<JournalEntryLine> JournalEntryLines { get; private set; }
 
         public UnitOfWork(
             SaasBankDbContext db,
@@ -75,6 +77,9 @@ namespace Saas_Micro_Finance.DataAccess.Repository
             Departments = new Repository<Department>(_db);
             Wallets = new Repository<Wallet>(_db);
             WhatsApps = new Repository<WhatsApp>(_db);
+            GLAccounts = new Repository<GLAccount>(_db);
+            JournalEntries = new Repository<JournalEntry>(_db);
+            JournalEntryLines = new Repository<JournalEntryLine>(_db);
         }
 
         public async Task<int> SaveAsync()

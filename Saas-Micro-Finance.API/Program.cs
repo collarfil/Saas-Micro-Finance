@@ -1,19 +1,20 @@
 ﻿using Finbuckle.MultiTenant;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // Required for Swagger fixes
-using Saas_Micro_Finance.DataAccess.Data;
-using Saas_Micro_Finance.DataAccess.Stores;
-using Saas_Micro_Finance.Models;
-using Saas_Micro_Finance.API.Controllers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models; // Required for Swagger fixes
+using Saas_Micro_Finance.API.Controllers;
+using Saas_Micro_Finance.API.Swagger;
+using Saas_Micro_Finance.DataAccess.Data;
 using Saas_Micro_Finance.DataAccess.Repository;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
-using System.Text;
-using Saas_Micro_Finance.API.Swagger;
-using Saas_Micro_Finance.Utility.Services.Interface;
+using Saas_Micro_Finance.DataAccess.Stores;
+using Saas_Micro_Finance.Models;
 using Saas_Micro_Finance.Utility.Services;
+using Saas_Micro_Finance.Utility.Services.Interface;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,6 +115,10 @@ builder.Services.AddScoped<ITenantMigrationService,
     TenantMigrationService>();
 
 builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    })
     .AddApplicationPart(typeof(TenantController).Assembly);
 
 
