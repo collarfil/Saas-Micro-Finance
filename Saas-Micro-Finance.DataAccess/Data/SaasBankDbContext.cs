@@ -7,7 +7,6 @@ using Saas_Micro_Finance.Models;
 
 namespace Saas_Micro_Finance.DataAccess.Data
 {
-
     /// <summary>
     /// Tenant database - each tenant gets its own instance of this DbContext.
     /// Contains all business tables + Identity tables.
@@ -16,8 +15,6 @@ namespace Saas_Micro_Finance.DataAccess.Data
     {
         public SaasBankDbContext(ITenantInfo? tenantInfo, DbContextOptions<SaasBankDbContext> options)
             : base(tenantInfo, options) { }
-
-
 
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Account> Accounts { get; set; }
@@ -48,7 +45,7 @@ namespace Saas_Micro_Finance.DataAccess.Data
             // 1. MUST BE FIRST: Identity + Finbuckle base config
             base.OnModelCreating(builder);
 
-            // 2. Multi-tenancy for business models
+            // 2. Multi-tenancy for business models (adds TenantId shadow property)
             foreach (var entityType in builder.Model.GetEntityTypes())
             {
                 if (entityType.ClrType.Namespace != null &&
@@ -58,7 +55,7 @@ namespace Saas_Micro_Finance.DataAccess.Data
                 }
             }
 
-            // 3. Foreign Key Constraints
+            // 3. Foreign Key Constraints (existing)
             builder.Entity<LedgerEntry>()
                 .HasOne(l => l.Transaction)
                 .WithMany()
@@ -77,26 +74,19 @@ namespace Saas_Micro_Finance.DataAccess.Data
                 .HasForeignKey(t => t.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 4. ===============================
-            // FINANCIAL PRECISION CONFIGURATION
-            // ===============================
-
-            // Transactions
+            // 4. Financial precision configuration (existing)
             builder.Entity<Transaction>()
                 .Property(t => t.Amount)
                 .HasPrecision(18, 2);
 
-            // Accounts (VERY IMPORTANT)
             builder.Entity<Account>()
                 .Property(a => a.Balance)
                 .HasPrecision(18, 2);
 
-            // Ledger Entries
             builder.Entity<LedgerEntry>()
                 .Property(l => l.Amount)
                 .HasPrecision(18, 2);
 
-            // Loans
             builder.Entity<Loan>()
                 .Property(l => l.Principal)
                 .HasPrecision(18, 2);
@@ -105,7 +95,6 @@ namespace Saas_Micro_Finance.DataAccess.Data
                 .Property(l => l.Interest)
                 .HasPrecision(18, 4);
 
-            // Loan Products (this is your current warning source)
             builder.Entity<LoanProduct>()
                 .Property(lp => lp.InterestRate)
                 .HasPrecision(18, 4);
@@ -114,14 +103,15 @@ namespace Saas_Micro_Finance.DataAccess.Data
                 .Property(lp => lp.PenaltyRate)
                 .HasPrecision(18, 4);
 
-            // Optional: Subscription (if you have it)
             builder.Entity<Subscription>()
                 .Property(s => s.Amount)
                 .HasPrecision(18, 2);
+
             // ========================================
             // GENERAL LEDGER / CHART OF ACCOUNTS
             // ========================================
 
+            // GL Accounts
             builder.Entity<GLAccount>(entity =>
             {
                 entity.HasKey(g => g.Id);
@@ -140,7 +130,7 @@ namespace Saas_Micro_Finance.DataAccess.Data
                 entity.Property(g => g.IsActive)
                     .HasDefaultValue(true);
 
-                // Account codes must be unique within each tenant.
+                // Unique per tenant DB (DB-per-tenant architecture).
                 entity.HasIndex(g => g.Code)
                     .IsUnique();
 
@@ -149,106 +139,78 @@ namespace Saas_Micro_Finance.DataAccess.Data
                     .WithMany(g => g.Children)
                     .HasForeignKey(g => g.ParentId)
                     .OnDelete(DeleteBehavior.Restrict);
-                // General Ledger Accounts
-                builder.Entity<GLAccount>(entity =>
-                {
-                    entity.HasKey(g => g.Id);
+            });
 
-                    entity.Property(g => g.Name)
-                        .IsRequired()
-                        .HasMaxLength(150);
+            // Journal Entries
+            builder.Entity<JournalEntry>(entity =>
+            {
+                entity.HasKey(j => j.Id);
 
-                    entity.Property(g => g.Code)
-                        .IsRequired()
-                        .HasMaxLength(20);
+                entity.Property(j => j.EntryNumber)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    entity.Property(g => g.Type)
-                        .IsRequired();
+                entity.Property(j => j.Description)
+                    .IsRequired()
+                    .HasMaxLength(500);
 
-                    entity.Property(g => g.IsActive)
-                        .HasDefaultValue(true);
+                entity.Property(j => j.Reference)
+                    .HasMaxLength(100);
 
-                    // Account codes must be unique within this tenant database.
-                    entity.HasIndex(g => g.Code)
-                        .IsUnique();
+                entity.Property(j => j.SourceModule)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    entity.HasOne(g => g.Parent)
-                        .WithMany(g => g.Children)
-                        .HasForeignKey(g => g.ParentId)
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
+                entity.Property(j => j.CreatedByUserId)
+                    .IsRequired()
+                    .HasMaxLength(450);
 
-                // Journal Entry
-                builder.Entity<JournalEntry>(entity =>
-                {
-                    entity.HasKey(j => j.Id);
+                entity.Property(j => j.PostedByUserId)
+                    .HasMaxLength(450);
 
-                    entity.Property(j => j.EntryNumber)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                entity.Property(j => j.Status)
+                    .HasConversion<int>();
 
-                    entity.Property(j => j.Description)
-                        .IsRequired()
-                        .HasMaxLength(500);
+                entity.HasIndex(j => j.EntryNumber)
+                    .IsUnique();
 
-                    entity.Property(j => j.Reference)
-                        .HasMaxLength(100);
+                entity.HasMany(j => j.Lines)
+                    .WithOne(l => l.JournalEntry)
+                    .HasForeignKey(l => l.JournalEntryId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    entity.Property(j => j.SourceModule)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                entity.HasOne(j => j.Branch)
+                    .WithMany()
+                    .HasForeignKey(j => j.BranchId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
-                    entity.Property(j => j.CreatedByUserId)
-                        .IsRequired()
-                        .HasMaxLength(450);
+            // Journal Entry Lines
+            builder.Entity<JournalEntryLine>(entity =>
+            {
+                entity.HasKey(l => l.Id);
 
-                    entity.Property(j => j.PostedByUserId)
-                        .HasMaxLength(450);
+                entity.Property(l => l.Debit)
+                    .HasPrecision(18, 2);
 
-                    entity.Property(j => j.Status)
-                        .HasConversion<int>();
+                entity.Property(l => l.Credit)
+                    .HasPrecision(18, 2);
 
-                    entity.HasIndex(j => j.EntryNumber)
-                        .IsUnique();
+                entity.Property(l => l.Description)
+                    .HasMaxLength(250);
 
-                    entity.HasMany(j => j.Lines)
-                        .WithOne(l => l.JournalEntry)
-                        .HasForeignKey(l => l.JournalEntryId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(l => l.GLAccount)
+                    .WithMany()
+                    .HasForeignKey(l => l.GlAccountId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    entity.HasOne(j => j.Branch)
-                        .WithMany()
-                        .HasForeignKey(j => j.BranchId)
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
+                entity.HasOne(l => l.Customer)
+                    .WithMany()
+                    .HasForeignKey(l => l.CustomerId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                // Journal Entry Lines
-                builder.Entity<JournalEntryLine>(entity =>
-                {
-                    entity.HasKey(l => l.Id);
-
-                    entity.Property(l => l.Debit)
-                        .HasPrecision(18, 2);
-
-                    entity.Property(l => l.Credit)
-                        .HasPrecision(18, 2);
-
-                    entity.Property(l => l.Description)
-                        .HasMaxLength(250);
-
-                    entity.HasOne(l => l.GLAccount)
-                        .WithMany()
-                        .HasForeignKey(l => l.GlAccountId)
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    entity.HasOne(l => l.Customer)
-                        .WithMany()
-                        .HasForeignKey(l => l.CustomerId)
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    entity.HasIndex(l => l.JournalEntryId);
-                    entity.HasIndex(l => l.GlAccountId);
-                });
+                entity.HasIndex(l => l.JournalEntryId);
+                entity.HasIndex(l => l.GlAccountId);
             });
         }
     }

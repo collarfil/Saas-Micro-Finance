@@ -3,6 +3,9 @@ using Saas_Micro_Finance.DataAccess.Data;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
 using Saas_Micro_Finance.Utility.Services.Interface;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace Saas_Micro_Finance.Utility.Services;
 
@@ -42,9 +45,54 @@ public class TenantMigrationService : ITenantMigrationService
         }
     }
 
-    private Task SeedRoles(SaasBankDbContext db)
+    private async Task SeedRoles(SaasBankDbContext db)
     {
-        return Task.CompletedTask;
+        var roleManager = new RoleManager<IdentityRole>(
+            new RoleStore<IdentityRole>(db), null, null, null, null);
+
+        var roles = new[]
+        {
+        // Core roles (preserve existing)
+        "TenantAdmin",
+        "BranchManager",
+        "LoanOfficer",
+        "Teller",
+        "Customer",
+
+        // Executive / Governance
+        "CEO",
+        "CFO",
+        "CRO",
+        "CCO",
+        "CTO",
+
+        // Front Office
+        "RelationshipManager",
+        "CreditAnalyst",
+        "InvestmentAdvisor",
+
+        // Middle Office
+        "CreditRiskOfficer",
+        "TreasuryOfficer",
+        "ComplianceOfficer",
+        "FraudAnalyst",
+
+        // Back Office
+        "GLAccountant",
+        "LoanOpsOfficer",
+        "SettlementOfficer",
+        "SystemAdmin",
+        "InternalAuditor",
+        "DisbursementOfficer",
+    };
+
+        foreach (var roleName in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
     }
 
     private Task SeedPermissions(SaasBankDbContext db)

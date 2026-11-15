@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Saas_Micro_Finance.DataAccess.Repository.IRepository;
 using Saas_Micro_Finance.Models;
 using Saas_Micro_Finance.Models.DTOs;
+using System.Linq;
 
 namespace Saas_Micro_Finance.API.Controllers
 {
@@ -29,18 +30,81 @@ namespace Saas_Micro_Finance.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var employees = await _unitOfWork.Employees.GetAllAsync();
-            return Ok(employees);
+            var result = new List<object>();
+
+            foreach (var emp in employees)
+            {
+                string? role = null;
+                string? email = null;
+
+                if (!string.IsNullOrEmpty(emp.ApplicationUserId))
+                {
+                    var user = await _userManager.FindByIdAsync(emp.ApplicationUserId);
+                    if (user != null)
+                    {
+                        email = user.Email;
+                        var roles = await _userManager.GetRolesAsync(user);
+                        role = roles.FirstOrDefault();
+                    }
+                }
+
+                result.Add(new
+                {
+                    emp.Id,
+                    emp.ApplicationUserId,
+                    emp.FirstName,
+                    emp.LastName,
+                    emp.Gender,
+                    emp.DOB,
+                    emp.StaffNumber,
+                    emp.DepartmentId,
+                    emp.Position,
+                    emp.BranchId,
+                    emp.Street,
+                    Email = email,
+                    Role = role
+                });
+            }
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var employee = await _unitOfWork.Employees.GetByIdAsync(id);
+            var emp = await _unitOfWork.Employees.GetByIdAsync(id);
+            if (emp == null) return NotFound();
 
-            if (employee == null)
-                return NotFound();
+            string? role = null;
+            string? email = null;
 
-            return Ok(employee);
+            if (!string.IsNullOrEmpty(emp.ApplicationUserId))
+            {
+                var user = await _userManager.FindByIdAsync(emp.ApplicationUserId);
+                if (user != null)
+                {
+                    email = user.Email;
+                    var roles = await _userManager.GetRolesAsync(user);
+                    role = roles.FirstOrDefault();
+                }
+            }
+
+            return Ok(new
+            {
+                emp.Id,
+                emp.ApplicationUserId,
+                emp.FirstName,
+                emp.LastName,
+                emp.Gender,
+                emp.DOB,
+                emp.StaffNumber,
+                emp.DepartmentId,
+                emp.Position,
+                emp.BranchId,
+                emp.Street,
+                Email = email,
+                Role = role
+            });
         }
 
         [HttpPost("upsert")]
